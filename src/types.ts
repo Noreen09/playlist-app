@@ -3,6 +3,7 @@ export type Song = {
   title: string;
   artist: string;
   duration: string; // "3:45"
+  url: string;
 };
 
 export type Playlist = {

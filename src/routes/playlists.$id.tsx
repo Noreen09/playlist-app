@@ -1,9 +1,16 @@
 import { useParams } from "react-router-dom";
 import { seedPlaylists } from "../data";
 import { loadPlaylists } from "../utils/storage";
+import { usePlayer } from "./PlayerContext"; // ⬅ import the global player
+import { useNavigate } from "react-router-dom";
+
 
 export default function PlaylistDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const { playPlaylist, playSong } = usePlayer(); // ⬅ get controls from context
+
   const playlist =
     [...seedPlaylists, ...loadPlaylists()].find((p) => p.id === id);
 
@@ -35,28 +42,37 @@ export default function PlaylistDetail() {
           <p className="text-gray-500 text-sm mt-1">
             {playlist.songs.length} songs • by {playlist.createdBy ?? "Unknown"}
           </p>
-          <button className="mt-5 px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(255,0,255,0.6)] hover:scale-105 transition">
-            ▶ Play
-          </button>
-        </div>
-      </header>
 
-      <ul className="divide-y divide-white/10 rounded-xl overflow-hidden border border-white/10 shadow-[0_0_15px_rgba(0,255,255,0.3)]">
-        {playlist.songs.map((s, i) => (
-          <li
-            key={s.id}
-            className="flex items-center justify-between p-4 bg-black/30 backdrop-blur-md hover:bg-black/50 transition"
-          >
-            <div>
-              <p className="font-medium text-white">
-                {i + 1}. {s.title}
-              </p>
-              <p className="text-sm text-gray-400">{s.artist}</p>
-            </div>
-            <span className="text-gray-400">{s.duration}</span>
-          </li>
-        ))}
-      </ul>
+          {/* ▶ Play whole playlist */}
+ {/* Playlist play button */}
+<button
+  onClick={() => {
+    playPlaylist(playlist);
+    navigate("/"); // ✅ go back home
+  }}
+  className="mt-5 px-6 py-3 rounded-lg bg-gradient-to-r from-pink-500 to-cyan-400 text-black font-bold shadow-[0_0_20px_rgba(0,255,255,0.6)] hover:scale-105 transition"
+>
+  ▶ Play
+</button>
+</div>
+</header>
+{/* Songs list */}
+<ul className="mt-6 space-y-3">
+  {playlist.songs.map((s) => (
+    <li
+      key={s.id}
+      onClick={() => {
+        playSong(s, playlist);
+        navigate("/"); // ✅ go back home
+      }}
+      className="flex items-center justify-between p-4 bg-black/30 backdrop-blur-md hover:bg-black/50 transition cursor-pointer"
+    >
+      <span>{s.title}</span>
+      <span className="text-sm opacity-70">{s.artist}</span>
+    </li>
+  ))}
+</ul>
+
     </main>
   );
 }
